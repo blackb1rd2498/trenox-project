@@ -1,10 +1,15 @@
 {
-
+  "homepage": "https://blackb1rd2498.github.io/trenox-project/",
   "scripts": {
-    "dev":"tailwind -i ./src/input.css -o ./dist/main.css --watch"
+    "dev": "tailwind -i ./src/input.css -o ./dist/main.css --watch",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
   },
-
   "devDependencies": {
     "tailwindcss": "^3.3.3"
+  },
+  "dependencies": {
+    "flowbite": "^1.8.1",
+    "tw-elements": "^1.0.0"
   }
 }
