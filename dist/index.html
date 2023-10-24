@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <!-- Tailwind Css -->
+    <link rel="stylesheet" href="./main.css">
+    <!-- Alpine Js -->
+    <script defer src="https://unpkg.com/alpinejs@3.2.4/dist/cdn.min.js"></script>
+</head>
+
+<body class="min-h-screen relative overflow-x-hidden">
+    <!--Navbar-->
+    <nav x-data="nav" class="w-full top-0 fixed shadow-md bg-white z-50">
+        <div class="max-w-7xl mx-auto flex justify-between px-4 relative">
+            <!-- Logo -->
+            <a href="#">
+                <h1 class="text-2xl font-black h-full leading-loose">TRENOX</h1>
+            </a>
+            <!-- SearchBar -->
+            <div x-cloak x-show="searchBar" x-transition:enter="transition ease-out duration-200"
+                x-transition:enter-start="opacity-0 transform -translate-y-5"
+                x-transition:enter-end="opacity-100 transform translate-y-0"
+                x-transition:leave="transition ease-in duration-300"
+                x-transition:leave-start="opacity-100 transform translate-y-0"
+                x-transition:leave-end="opacity-0 transform -translate-y-5"
+                class="bg-white absolute top-0 right-0 w-full flex justify-center items-center space-x-2 px-2 h-12 sm:w-80 sm:top-14 sm:border-2 sm:border-indigo-400 sm:rounded sm:shadow-md">
+                <input type="text" placeholder=" Search" x-ref="search"
+                    class="w-full appearance-none border-none bg-transparent py-2 px-3 texy-gray-700 leading-tight focus:outline-none">
+                <button @click="searchBar = false">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-700" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <!-- Mobile -->
+            <div class="md:hidden flex justify-center items-center">
+                <!-- Search Icon -->
+                <button @click="searchBar = true; $nextTick(() => $refs.search.focus());">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </button>
+                <!-- Menu Icons -->
+                <button class="py-3 ml-3" @click="navOpen=!navOpen">
+                    <svg :class="navOpen?'hidden':''" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 6h16M4 12h16m-7 6h7" />
+                    </svg>
+                    <svg x-cloak :class="navOpen?'':'hidden'" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6"
+                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <!-- Mobile Drawer -->
+            <div x-cloak x-show="navOpen" @click.outside="navOpen = false"
+                x-transition:enter="transition ease-out duration-300"
+                x-transition:enter-start="opacity-0 transform -translate-x-5"
+                x-transition:enter-end="opacity-100 transform translate-x-0"
+                x-transition:leave="transition ease-in duration-300"
+                x-transition:leave-start="opacity-100 transform translate-x-0"
+                x-transition:leave-end="opacity-0 transform -translate-x-5"
+                class="md:hidden fixed h-screen top-0 left-0 bottom-0 bg-white shadow-md w-3/4">
+                <!--MOBILE OPTIONS-->
+                <div class="h-full flex justify-center items-center space-y-5 flex-col">
+                    <a href="#" @click="active = 'home'; navOpen = false">
+                        <h1 class="p-3 hover:text-indigo-400 transition duration-200"
+                            :class="active == 'home'?'border-b-2 border-indigo-400 text-indigo-400':''">GIMNASIOS PARA CASA</h1>
+                    </a>                   
+                    <a href="#" @click="active = 'profile'; navOpen = false">
+                        <h1 class="p-3 hover:text-indigo-400 transition duration-200"
+                            :class="active == 'profile'?'border-b-2 border-indigo-400 text-indigo-400':''">MAQUINAS PARA GIMANSIO
+                        </h1>
+                    </a>
+                    <a href="#" @click="active = 'profile'; navOpen = false">
+                        <h1 class="p-3 hover:text-indigo-400 transition duration-200"
+                            :class="active == 'profile'?'border-b-2 border-indigo-400 text-indigo-400':''">GIMNASIOS PARA EXTERIOR
+                        </h1>
+                    </a>
+                    <!-- drawer -->
+                    <div x-data="drawer" class="w-full relative">
+                        <div @click="drawerOpen=!drawerOpen";  class="group flex justify-center items-center">
+                            <button class="apperance-none focus:outline-none">
+                                <h1 class="p-3 group-hover:text-indigo-400 transition duration-200"
+                                    :class="active == 'service'?'text-indigo-400':''">
+                                    TIENDA
+                                </h1>
+                            </button>
+                            <svg xmlns="http://www.w3.org/2000/svg"
+                                class="h-5 w-5 mt-1 group-hover:text-indigo-400 transition-all duration-200 transform"
+                                :class="drawerOpen ? 'rotate-90':''" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd"
+                                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <!-- drawer Items -->
+                        <div x-cloak x-show="drawerOpen" @click.outside="drawerOpen = false"
+                        x-transition:enter="transition ease-out duration-300"
+                        x-transition:enter-start="opacity-0 transform -translate-x-5"
+                        x-transition:enter-end="opacity-100 transform translate-x-0"
+                        x-transition:leave="transition ease-in duration-300"
+                        x-transition:leave-start="opacity-100 transform translate-x-0"
+                        x-transition:leave-end="opacity-0 transform -translate-x-5"
+                        class="md:hidden fixed h-full top-0 left-0 bottom-0 w-3/4 bg-white shadow-md overflow-scroll">
+                            <button @click="drawerOpen=!drawerOpen" type="button" class="bg-white rounded-md items-center justify-center text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 p-4 block absolute">
+                                <span class="sr-only">Close menu</span>
+                                <!-- Heroicon name: outline/x -->
+                                <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                            <!--DRAWER OPTIONS-->
+                            <div class="flex items-center space-y-1 flex-col justify-between h-full">
+                                <a href="#" @click="active = 'home'; navOpen = false">
+                                    <h1 class="p-3 hover:text-indigo-400 transition duration-200"
+                                        :class="active == 'home'?'border-b-2 border-indigo-400 text-indigo-400':''">MINIGIMANACIOS</h1>
+                                </a>                   
+                                <a href="#" @click="active = 'profile'; navOpen = false">
+                                    <h1 class="p-3 hover:text-indigo-400 transition duration-200"
+                                        :class="active == 'profile'?'border-b-2 border-indigo-400 text-indigo-400':''">CARDIO
+                                    </h1>
+                                </a>
+                                <a href="#" @click="active = 'profile'; navOpen = false">
+                                    <h1 class="p-3 hover:text-indigo-400 transition duration-200"
+                                        :class="active == 'profile'?'border-b-2 border-indigo-400 text-indigo-400':''">BARRA PARA DISCOS
+                                    </h1>
+                                </a>
+                                <a href="#" @click="active = 'profile'; navOpen = false">
+                                    <h1 class="p-3 hover:text-indigo-400 transition duration-200"
+                                        :class="active == 'profile'?'border-b-2 border-indigo-400 text-indigo-400':''">PESOS
+                                    </h1>
+                                </a>
+                                <a href="#" @click="active = 'profile'; navOpen = false">
+                                    <h1 class="p-3 hover:text-indigo-400 transition duration-200"
+                                        :class="active == 'profile'?'border-b-2 border-indigo-400 text-indigo-400':''">AGARRES POLEA Y HANDGRIPS
+                                    </h1>
+                                </a>
+                                <a href="#" @click="active = 'profile'; navOpen = false">
+                                    <h1 class="p-3 hover:text-indigo-400 transition duration-200"
+                                        :class="active == 'profile'?'border-b-2 border-indigo-400 text-indigo-400':''">JAULAS Y RACKS DE SENTADILLA
+                                    </h1>
+                                </a>
+                                <a href="#" @click="active = 'profile'; navOpen = false">
+                                    <h1 class="p-3 hover:text-indigo-400 transition duration-200"
+                                        :class="active == 'profile'?'border-b-2 border-indigo-400 text-indigo-400':''">BANCAS
+                                    </h1>
+                                </a>
+                                <a href="#" @click="active = 'profile'; navOpen = false">
+                                    <h1 class="p-3 hover:text-indigo-400 transition duration-200"
+                                        :class="active == 'profile'?'border-b-2 border-indigo-400 text-indigo-400':''">CALISTENIA
+                                    </h1>
+                                </a>
+                                <a href="#" @click="active = 'profile'; navOpen = false">
+                                    <h1 class="p-3 hover:text-indigo-400 transition duration-200"
+                                        :class="active == 'profile'?'border-b-2 border-indigo-400 text-indigo-400':''">AGILIDAD Y CROSSFIT
+                                    </h1>
+                                </a>
+                                <a href="#" @click="active = 'profile'; navOpen = false">
+                                    <h1 class="p-3 hover:text-indigo-400 transition duration-200"
+                                        :class="active == 'profile'?'border-b-2 border-indigo-400 text-indigo-400':''">AEROBICOS Y YOGA
+                                    </h1>
+                                </a>
+                                <a href="#" @click="active = 'profile'; navOpen = false">
+                                    <h1 class="p-3 hover:text-indigo-400 transition duration-200"
+                                        :class="active == 'profile'?'border-b-2 border-indigo-400 text-indigo-400':''">LIGAS Y BANDAS ELASTICAS
+                                    </h1>
+                                </a>
+                                <a href="#" @click="active = 'profile'; navOpen = false">
+                                    <h1 class="p-3 hover:text-indigo-400 transition duration-200"
+                                        :class="active == 'profile'?'border-b-2 border-indigo-400 text-indigo-400':''">EQUIPAMIENTO BOX Y MMA
+                                    </h1>
+                                </a>
+                                <a href="#" @click="active = 'profile'; navOpen = false">
+                                    <h1 class="p-3 hover:text-indigo-400 transition duration-200"
+                                        :class="active == 'profile'?'border-b-2 border-indigo-400 text-indigo-400':''">MASAJEADORES
+                                    </h1>
+                                </a>
+                                <a href="#" @click="active = 'profile'; navOpen = false">
+                                    <h1 class="p-3 hover:text-indigo-400 transition duration-200"
+                                        :class="active == 'profile'?'border-b-2 border-indigo-400 text-indigo-400':''">CINTURONES Y STRAPS
+                                    </h1>
+                                </a>
+                                <a href="#" @click="active = 'profile'; navOpen = false">
+                                    <h1 class="p-3 hover:text-indigo-400 transition duration-200"
+                                        :class="active == 'profile'?'border-b-2 border-indigo-400 text-indigo-400':''">RACK DE ACCESORIOS
+                                    </h1>
+                                </a>
+                                <a href="#" @click="active = 'profile'; navOpen = false">
+                                    <h1 class="p-3 hover:text-indigo-400 transition duration-200"
+                                        :class="active == 'profile'?'border-b-2 border-indigo-400 text-indigo-400':''">PISOS PARA GIMNASIO
+                                    </h1>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <a href="#" @click="active = 'contact'; navOpen = false">
+                        <h1 class="p-3 hover:text-indigo-400 transition duration-200"
+                            :class="active == 'contact'?'border-b-2 border-indigo-400 text-indigo-400':''">CONTACTO
+                        </h1>
+                    </a>
+                </div>
+            </div>
+            <!-- Desktop -->
+            <div class="hidden md:flex justify-evenly items-center space-x-4">
+                <a href="#" @click="active = 'home'">
+                    <h1 class="p-3 font-medium hover:text-indigo-400 transition duration-200"
+                        :class="active == 'home'?'border-b-2 border-indigo-400 text-indigo-400':''">Gimnasios para casa</h1>
+                </a>        
+                <a href="#" @click="active = 'profile'">
+                    <h1 class="p-3 font-medium hover:text-indigo-400 transition duration-200"
+                        :class="active == 'profile'?'border-b-2 border-indigo-400 text-indigo-400':''">Maquinas para Gimansio</h1>
+                </a>
+                <a href="#" @click="active = 'contact'">
+                    <h1 class="p-3 font-medium hover:text-indigo-400 transition duration-200"
+                        :class="active == 'contact'?'border-b-2 border-indigo-400 text-indigo-400':''">Gimnasios para Exterior</h1>
+                </a>
+                <!-- Dropdown -->
+                <div x-data="dropdown" class="relative flex justify-center items-center group">
+                    <button @click="open = !open;active = 'service';" @click.outside="open=false">
+                        <h1 class="p-3 font-medium hover:text-indigo-400 transition duration-200"
+                            :class="active == 'service'?'text-indigo-400':''">Tienda</h1>
+
+                    </button>
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                        class="h-5 w-5 mt-1 group-hover:text-indigo-400 transition-all duration-200 transform"
+                        :class="open ? 'rotate-180':''" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd"
+                            d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                            clip-rule="evenodd" />
+                    </svg>
+                    <div x-cloak x-show="open" class="absolute top-14 bg-white rounded-xl shadow-md border-2">
+                        <a href="#" @click="open = false">
+                            <h1 class="p-3 font-medium hover:text-indigo-400 transition duration-200">Item 1</h1>
+                        </a>
+                        <a href="#" @click="open = false">
+                            <h1 class="p-3 font-medium hover:text-indigo-400 transition duration-200">Item 2</h1>
+                        </a>
+                        <a href="#" @click="open = false">
+                            <h1 class="p-3 font-medium hover:text-indigo-400 transition duration-200">Item 3</h1>
+                        </a>
+                    </div>
+                </div>
+                <a href="#" @click="active = 'contact'">
+                    <h1 class="p-3 font-medium hover:text-indigo-400 transition duration-200"
+                        :class="active == 'contact'?'border-b-2 border-indigo-400 text-indigo-400':''">Contacto</h1>
+                </a>
+                <button @click="searchBar = true; $nextTick(() => $refs.search.focus());">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hover:text-indigo-400" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </nav>
+    <!-- Hero Section -->
+    <section class="pt-10 flex flex-col text-white sm:bg-center sm:bg-fixed sm:bg-black/30 bg-center bg-cover relative md:h-auto h-96">
+        <img class="object-fill h-full" src="/img/img-portada-1.webp" alt="">
+        <!-- Hero Section Content -->
+        <div class="flex-1 flex items-center absolute inset-y-0 left-0 pt-10 min-h-max md:h-full h-96" >
+            <div class="text-left mx-auto md:p-20 pl-6" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform -translate-x-5" x-transition:enter-end="opacity-100 transform translate-x-0" x-transition:leave="transition ease-in duration-300" x-transition:leave-start="opacity-100 transform translate-x-0" x-transition:leave-end="opacity-0 transform -translate-x-5" >
+                <h1 class="md:text-6xl font-semibold text-xl">EQUIPOS DE
+                    GIMNASIO</h1>
+                <p class="font-light md:text-3xl text-l mt-5">Equipos de gimnasio Hogar y Profesional.
+                    Envío e instalación a todo el Perú.</p>
+                <a class="inline-block text-white mt-10 bg-blue-400	 p-4" href="">
+                Contacto
+                </a>
+            </div>
+        </div>
+    </section>
+    <!-- Hero Section upsells-->  
+    <section class="flex flex-wrap h-full text-white">
+        <!-- Hero Section Content -->
+        <div class="flex-1 flex items-center bg-blue-500">
+            <div class="text-center mx-auto p-10">
+                <h1 class="text-3xl font-semibold">Maquinas de gimnasio para casa</h1>
+                <p class="font-light text-xl mt-5">Equipamiento compacto y versatil para ejercitar todo el cuerpo en casa y maximizar tu espacio de entrenamiento.</p>
+                <a class="px-5 py-2 inline-block bg-cyan-500 text-white hover:bg-cyan-400 transition-colors mt-10" href="">
+                Tienda 
+                </a>
+            </div>
+        </div>
+        <div class="flex-1 flex items-center bg-gray-300">
+            <div class="text-center mx-auto p-10">
+                <h1 class="text-3xl font-semibold">Equipos de gimnasio profesional
+                </h1>
+                <p class="font-light text-xl mt-5">Equipamiento para gimnasios y centros de entrenamiento que requieran crear el gimnasio definitivo</p>
+                <a class="px-5 py-2 inline-block bg-cyan-500 text-white hover:bg-cyan-400 transition-colors mt-10" href="">
+                Tienda
+                </a>
+            </div>
+        </div>
+    </section>
+    <!--Products-->
+    <section class="flex flex-col h-full text-white">
+        <div class="flex flex-wrap justify-center text-black">
+            <div class="text-center pt-20">
+                <h1 class="text-3xl font-semibold">Maquinas de gimnasio para casa</h1>
+                <p class="font-light text-xl mt-5">Equipamiento compacto y versatil para ejercitar todo el cuerpo en casa y maximizar tu espacio de entrenamiento.</p>
+            </div>
+        </div>   
+        <div class="bg-white flex-1 flex items-center">
+            <div class="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
+              <h2 class="sr-only">Products</h2>
+          
+              <div class="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8">
+                <a href="#" class="group">
+                  <div class="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-gray-200 xl:aspect-h-8 xl:aspect-w-7">
+                    <img src="../img/trenox-aerobicos-equilibrio.jpg" alt="Tall slender porcelain bottle with natural clay textured body and cork stopper." class="h-full w-full object-cover object-center group-hover:opacity-75">
+                  </div>
+                  <h3 class="mt-4 text-sm text-center text-white p-2 font-bold rounded bg-cyan-600">Aerobicos y Equilibrio</h3>
+                </a>
+                <a href="#" class="group">
+                  <div class="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-gray-200 xl:aspect-h-8 xl:aspect-w-7">
+                    <img src="../img/trenox-agarre-poleas.jpg" alt="Olive drab green insulated bottle with flared screw lid and flat top." class="h-full w-full object-cover object-center group-hover:opacity-75">
+                  </div>
+                  <h3 class="mt-4 text-sm text-center text-white p-2 font-bold rounded bg-cyan-600">Agarres polea y Handgrips</h3>
+                </a>
+                <a href="#" class="group">
+                  <div class="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-gray-200 xl:aspect-h-8 xl:aspect-w-7">
+                    <img src="../img/trenox-agilidad-resistencia.jpg" alt="Person using a pen to cross a task off a productivity paper card." class="h-full w-full object-cover object-center group-hover:opacity-75">
+                  </div>
+                  <h3 class="mt-4 text-sm text-center text-white p-2 font-bold rounded bg-cyan-600">Agilidad y resistencia</h3>
+                </a>
+                <a href="#" class="group">
+                  <div class="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-gray-200 xl:aspect-h-8 xl:aspect-w-7">
+                    <img src="../img/trenox-almacenamiento.jpg" alt="Hand holding black machined steel mechanical pencil with brass tip and top." class="h-full w-full object-cover object-center group-hover:opacity-75">
+                  </div>
+                  <h3 class="mt-4 text-sm text-center text-white p-2 font-bold rounded bg-cyan-600">Almacenamiento</h3>
+                </a>
+          
+                <!-- More products... -->
+              </div>
+              <div class="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8">
+                <a href="#" class="group">
+                  <div class="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-gray-200 xl:aspect-h-8 xl:aspect-w-7">
+                    <img src="../img/trenox-bancas-estaciones.jpg" alt="Tall slender porcelain bottle with natural clay textured body and cork stopper." class="h-full w-full object-cover object-center group-hover:opacity-75">
+                  </div>
+                  <h3 class="mt-4 text-sm text-center text-white p-2 font-bold rounded bg-cyan-600">Banca y Estaciones</h3>
+                </a>
+                <a href="#" class="group">
+                  <div class="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-gray-200 xl:aspect-h-8 xl:aspect-w-7">
+                    <img src="../img/trenox-bancas-ligas.jpg" alt="Olive drab green insulated bottle with flared screw lid and flat top." class="h-full w-full object-cover object-center group-hover:opacity-75">
+                  </div>
+                  <h3 class="mt-4 text-sm text-center text-white p-2 font-bold rounded bg-cyan-600">Bandas y Ligas</h3>
+                </a>
+                <a href="#" class="group">
+                  <div class="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-gray-200 xl:aspect-h-8 xl:aspect-w-7">
+                    <img src="../img/trenox-barras.jpg" alt="Person using a pen to cross a task off a productivity paper card." class="h-full w-full object-cover object-center group-hover:opacity-75">
+                  </div>
+                  <h3 class="mt-4 text-sm text-center text-white p-2 font-bold rounded bg-cyan-600">Barras</h3>
+                </a>
+                <a href="#" class="group">
+                  <div class="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-gray-200 xl:aspect-h-8 xl:aspect-w-7">
+                    <img src="../img/trenox-bpx-bjj.jpg" alt="Hand holding black machined steel mechanical pencil with brass tip and top." class="h-full w-full object-cover object-center group-hover:opacity-75">
+                  </div>
+                  <h3 class="mt-4 text-sm text-center text-white p-2 font-bold rounded bg-cyan-600">Box, BJJ y MMA</h3>
+                </a>
+          
+                <!-- More products... -->
+              </div>
+              <div class="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8">
+                <a href="#" class="group">
+                  <div class="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-gray-200 xl:aspect-h-8 xl:aspect-w-7">
+                    <img src="../img/trenox-calistenea.jpg" alt="Tall slender porcelain bottle with natural clay textured body and cork stopper." class="h-full w-full object-cover object-center group-hover:opacity-75">
+                  </div>
+                  <h3 class="mt-4 text-sm text-center text-white p-2 font-bold rounded bg-cyan-600">Calistenia</h3>
+                </a>
+                <a href="#" class="group">
+                  <div class="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-gray-200 xl:aspect-h-8 xl:aspect-w-7">
+                    <img src="../img/trenox-cardio.jpg" alt="Olive drab green insulated bottle with flared screw lid and flat top." class="h-full w-full object-cover object-center group-hover:opacity-75">
+                  </div>
+                  <h3 class="mt-4 text-sm text-center text-white p-2 font-bold rounded bg-cyan-600">Cardio</h3>
+                </a>
+                <a href="#" class="group">
+                  <div class="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-gray-200 xl:aspect-h-8 xl:aspect-w-7">
+                    <img src="../img/trenox-cinturon.jpg" alt="Person using a pen to cross a task off a productivity paper card." class="h-full w-full object-cover object-center group-hover:opacity-75">
+                  </div>
+                  <h3 class="mt-4 text-sm text-center text-white p-2 font-bold rounded bg-cyan-600">Cinturón, Straps y Wraps</h3>
+                </a>
+                <a href="#" class="group">
+                  <div class="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-gray-200 xl:aspect-h-8 xl:aspect-w-7">
+                    <img src="../img/trenox-jaulas-rack.jpg" alt="Hand holding black machined steel mechanical pencil with brass tip and top." class="h-full w-full object-cover object-center group-hover:opacity-75">
+                  </div>
+                  <h3 class="mt-4 text-sm text-center text-white p-2 font-bold rounded bg-cyan-600">Jaulas y Racks</h3>
+                </a>
+          
+                <!-- More products... -->
+              </div>
+              <div class="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8">
+                <a href="#" class="group">
+                  <div class="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-gray-200 xl:aspect-h-8 xl:aspect-w-7">
+                    <img src="../img/trenox-masejeadores.jpg" alt="Tall slender porcelain bottle with natural clay textured body and cork stopper." class="h-full w-full object-cover object-center group-hover:opacity-75">
+                  </div>
+                  <h3 class="mt-4 text-sm text-center text-white p-2 font-bold rounded bg-cyan-600">Masajeadores</h3>
+                </a>
+                <a href="#" class="group">
+                  <div class="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-gray-200 xl:aspect-h-8 xl:aspect-w-7">
+                    <img src="../img/trenox-multifuncion.jpg" alt="Olive drab green insulated bottle with flared screw lid and flat top." class="h-full w-full object-cover object-center group-hover:opacity-75">
+                  </div>
+                  <h3 class="mt-4 text-sm text-center text-white p-2 font-bold rounded bg-cyan-600">Minigimnasio</h3>
+                </a>
+                <a href="#" class="group">
+                  <div class="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-gray-200 xl:aspect-h-8 xl:aspect-w-7">
+                    <img src="../img/trenox-pesos.jpg" alt="Person using a pen to cross a task off a productivity paper card." class="h-full w-full object-cover object-center group-hover:opacity-75">
+                  </div>
+                  <h3 class="mt-4 text-sm text-center text-white p-2 font-bold rounded bg-cyan-600">Pesos</h3>
+                </a>
+                <a href="#" class="group">
+                  <div class="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-gray-200 xl:aspect-h-8 xl:aspect-w-7">
+                    <img src="../img/trenox-piso.jpg" alt="Hand holding black machined steel mechanical pencil with brass tip and top." class="h-full w-full object-cover object-center group-hover:opacity-75">
+                  </div>
+                  <h3 class="mt-4 text-sm text-center text-white p-2 font-bold rounded bg-cyan-600">Pisos</h3>
+                </a>
+          
+                <!-- More products... -->
+              </div>
+            </div>
+        </div>   
+    </section>
+    <!-- Gym selections -->  
+    <section class="flex flex-wrap h-full text-white">
+        <!-- Gym selections Content -->
+        <div class="md:flex-1 md:h-auto h-96 flex items-center relative w-full">
+            <img class="object-cover h-full w-full" src="/img/gim-2.webp" alt="">
+            <div class="text-center mx-auto p-10 bg-fixed absolute">
+                <h1 class="text-3xl font-semibold">GIMNASIO AL AIRE LIBRE</h1>
+                <p class="font-light text-xl mt-5">Venta e instalación de maquinas de gimnasio para parques, ideal para municipalidades, instituciones educativas, clubs y empresas que quieran brindar un ambiente deportivo.</p>
+                <a class="px-5 py-2 inline-block bg-cyan-500 text-white hover:bg-cyan-400 transition-colors mt-10" href="">
+                Tienda 
+                </a>
+            </div>
+        </div>
+        <div class="md:flex-1 md:h-auto h-96 flex items-center relative w-full">
+            <img class="object-cover h-full w-full" src="/img/gim-1.webp" alt="">
+            <div class="text-center mx-auto p-10 absolute">
+                <h1 class="text-3xl font-semibold">ABRE TU GIMNASIO
+                </h1>
+                <p class="font-light text-xl mt-5">Equipos de gimnasio para tu sala de musculacion, cardio, funcional, crossfit, aerobicos y yoga para que puedas brindarle a tus clientes lo ultimo en tecnologia deportiva.</p>
+                <a class="px-5 py-2 inline-block bg-cyan-500 text-white hover:bg-cyan-400 transition-colors mt-10" href="">
+                Tienda
+                </a>
+            </div>
+        </div>
+    </section>
+    <!--Acordeon-->
+    <section class="w-full bg-white flex justify-center h-full items-start flex-wrap">
+        <!-- Accordion 1 -->
+        <div x-data="accordion" class="w-full max-w-lg mx-auto space-y-4 p-6">
+            <div class="w-full bg-white shadow-md rounded-md">
+                <!-- Head -->
+                <div @click="selected != 1 ? selected = 1 : selected =null"
+                    class="flex justify-between items-center shadow-md px-2">
+                    <h5 class="block mb-2 font-sans text-xl antialiased font-semibold leading-snug tracking-normal text-blue-gray-900 p-2">
+                        FORMAS DE PAGO
+                    </h5>
+                    <svg xmlns="http://www.w3.org/2000/svg" x-bind:class="selected == 1? 'transform rotate-180':''"
+                        class="h-5 w-5 transition-all duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </div>
+                <!-- Content -->
+                <div class="max-h-0 overflow-hidden transition-all duration-300" x-ref="tab1"
+                    :style="selected == 1 ? 'max-height: '+ $refs.tab1.scrollHeight+ 'px;':''">
+                    <div class="p-6">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        aria-hidden="true"
+                        class="w-12 h-12 mb-4 text-black"
+                      >
+                        <path
+                          fill-rule="evenodd"
+                          d="M9.315 7.584C12.195 3.883 16.695 1.5 21.75 1.5a.75.75 0 01.75.75c0 5.056-2.383 9.555-6.084 12.436A6.75 6.75 0 019.75 22.5a.75.75 0 01-.75-.75v-4.131A15.838 15.838 0 016.382 15H2.25a.75.75 0 01-.75-.75 6.75 6.75 0 017.815-6.666zM15 6.75a2.25 2.25 0 100 4.5 2.25 2.25 0 000-4.5z"
+                          clip-rule="evenodd"
+                        ></path>
+                        <path d="M5.26 17.242a.75.75 0 10-.897-1.203 5.243 5.243 0 00-2.05 5.022.75.75 0 00.625.627 5.243 5.243 0 005.022-2.051.75.75 0 10-1.202-.897 3.744 3.744 0 01-3.008 1.51c0-1.23.592-2.323 1.51-3.008z"></path>
+                      </svg>                      
+                      <p class="block font-sans text-base antialiased font-light leading-relaxed text-inherit">
+                        Aceptamos pago mediante deposito bancario o efectivo.
+                        *Por ahora no aceptamos pago con tarjeta.
+                      </p>
+                    </div>
+                </div>
+               
+            </div>
+        </div>
+        <!-- Accordion 2 -->
+        <div x-data="accordion" class="w-full max-w-lg mx-auto space-y-4 p-6">
+            <div class="w-full bg-white shadow-md rounded-md">
+                <!-- Head -->
+                <div @click="selected != 1 ? selected = 1 : selected =null"
+                    class="flex justify-between items-center shadow-md px-2">
+                    <h5 class="block mb-2 font-sans text-xl antialiased font-semibold leading-snug tracking-normal text-blue-gray-900 p-2">
+                        ENVIOS Y RECOJO
+                    </h5>                    
+                    <svg xmlns="http://www.w3.org/2000/svg" x-bind:class="selected == 1? 'transform rotate-180':''"
+                        class="h-5 w-5 transition-all duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </div>
+                <!-- Content -->
+                <div class="max-h-0 overflow-hidden transition-all duration-300" x-ref="tab1"
+                    :style="selected == 1 ? 'max-height: '+ $refs.tab1.scrollHeight+ 'px;':''">
+                    <div class="p-6">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        aria-hidden="true"
+                        class="w-12 h-12 mb-4 text-black"
+                      >
+                        <path
+                          fill-rule="evenodd"
+                          d="M9.315 7.584C12.195 3.883 16.695 1.5 21.75 1.5a.75.75 0 01.75.75c0 5.056-2.383 9.555-6.084 12.436A6.75 6.75 0 019.75 22.5a.75.75 0 01-.75-.75v-4.131A15.838 15.838 0 016.382 15H2.25a.75.75 0 01-.75-.75 6.75 6.75 0 017.815-6.666zM15 6.75a2.25 2.25 0 100 4.5 2.25 2.25 0 000-4.5z"
+                          clip-rule="evenodd"
+                        ></path>
+                        <path d="M5.26 17.242a.75.75 0 10-.897-1.203 5.243 5.243 0 00-2.05 5.022.75.75 0 00.625.627 5.243 5.243 0 005.022-2.051.75.75 0 10-1.202-.897 3.744 3.744 0 01-3.008 1.51c0-1.23.592-2.323 1.51-3.008z"></path>
+                      </svg>
+                      <p class="block font-sans text-base antialiased font-light leading-relaxed text-inherit">
+                        Lima – Envio a domicilio disponible a todo Lima metropolitana
+                        <br>
+                        <br>
+                        Provincia – Envio disponible mediante la empresa de transporte Marvisur para recojo en la misma agencia o envio a domicilio. Si desea usar otra agencia consultar con vendedor.
+                        <br>
+                        <br>
+                        *Retiro en almacen – Coordinar previamente con vendedores para alistar su pedido y pueda recogerlo en nuestro almacen ubicado en Lima.
+ 
+                      </p>
+                    </div>
+                </div>
+               
+            </div>
+        </div>
+        <!-- Accordion 3 -->
+        <div x-data="accordion" class="w-full max-w-lg mx-auto space-y-4 p-6">
+            <div class="w-full bg-white shadow-md rounded-md">
+                <!-- Head -->
+                <div @click="selected != 1 ? selected = 1 : selected =null"
+                    class="flex justify-between items-center shadow-md px-2">
+                    <h5 class="block mb-2 font-sans text-xl antialiased font-semibold leading-snug tracking-normal text-blue-gray-900 p-2">
+                        SERVICIOS DE ARMADO
+                    </h5>   
+                    <svg xmlns="http://www.w3.org/2000/svg" x-bind:class="selected == 1? 'transform rotate-180':''"
+                        class="h-5 w-5 transition-all duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </div>
+                <!-- Content -->
+                <div class="max-h-0 overflow-hidden transition-all duration-300" x-ref="tab1"
+                    :style="selected == 1 ? 'max-height: '+ $refs.tab1.scrollHeight+ 'px;':''">
+                    <div class="p-6">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        aria-hidden="true"
+                        class="w-12 h-12 mb-4 text-black"
+                      >
+                        <path
+                          fill-rule="evenodd"
+                          d="M9.315 7.584C12.195 3.883 16.695 1.5 21.75 1.5a.75.75 0 01.75.75c0 5.056-2.383 9.555-6.084 12.436A6.75 6.75 0 019.75 22.5a.75.75 0 01-.75-.75v-4.131A15.838 15.838 0 016.382 15H2.25a.75.75 0 01-.75-.75 6.75 6.75 0 017.815-6.666zM15 6.75a2.25 2.25 0 100 4.5 2.25 2.25 0 000-4.5z"
+                          clip-rule="evenodd"
+                        ></path>
+                        <path d="M5.26 17.242a.75.75 0 10-.897-1.203 5.243 5.243 0 00-2.05 5.022.75.75 0 00.625.627 5.243 5.243 0 005.022-2.051.75.75 0 10-1.202-.897 3.744 3.744 0 01-3.008 1.51c0-1.23.592-2.323 1.51-3.008z"></path>
+                      </svg>
+                      <p class="block font-sans text-base antialiased font-light leading-relaxed text-inherit">
+                        Lima – Servicio de instalacion disponible en todo Lima metropolitana.
+                        <br><br>
+                        Provincia – Servicio de instalacion disponible solo para gimnasios y centros de entrenamiento
+                      </p>
+                    </div>
+                </div>
+               
+            </div>
+        </div>
+    </section>
+    <!-- Need help -->  
+    <section class="flex  h-full text-white">
+        <!-- Gym selections Content -->
+        <div class="flex-1 flex items-center bg-black">
+            <div class="text-center mx-auto p-10">
+                <h1 class="text-3xl font-semibold">Maquinas de gimnasio para casa</h1>
+                <p class="font-light text-xl mt-5">Equipamiento compacto y versatil para ejercitar todo el cuerpo en casa y maximizar tu espacio de entrenamiento.</p>
+                <a class="px-5 py-2 inline-block bg-cyan-500 text-white hover:bg-cyan-400 transition-colors mt-10" href="">
+                Tienda 
+                </a>
+            </div>
+        </div>
+    </section>
+    
+</body>
+<footer id="footer" class="w-full bg-gray-800">
+    <div class="max-w-7xl mx-auto w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 px-2 py-4 gap-y-10">
+        <!-- Contact -->
+        <ul class="w-full space-y-2">
+            <li class="appearance-none"><h1 class="font-semibold text-xl pb-1">Contact us</h1></li>
+            <li class="appearance-none flex items-center"><i class="fas fa-phone-alt text-white mr-2"></i><h1>+91 1234567890</h1></li>
+            <li class="appearance-none flex items-center"><i class="fas fa-envelope text-white mr-2"></i><h1>codefbusiness@gmail.com</h1></li>
+            <li class="appearance-none flex items-center"><i class="fas fa-map-marked text-white mr-2"></i><h1>Kolkata - 700064</h1></li>
+        </ul>
+        <!-- Privacy -->
+        <ul class="w-full space-y-2">
+            <li class="appearance-none"><h1>Partners</h1></li>
+            <li class="appearance-none"><h1>FAQ</h1></li>
+            <li class="appearance-none"><h1>Terms & Conditions</h1></li>
+            <li class="appearance-none"><h1>Privacy Policy</h1></li>
+        </ul>
+        <!-- Social -->
+        <ul class="w-full space-y-2">
+            <li class="appearance-none flex items-center">
+                <i class="fab fa-facebook-f text-white mr-2"></i>
+                <h1>facebook</h1>
+            </li>
+            <li class="appearance-none flex items-center">
+                <i class="fab fa-twitter text-white mr-2"></i>
+                <h1>twitter</h1>
+            </li>
+            <li class="appearance-none flex items-center">
+                <i class="fab fa-instagram text-white mr-2"></i>
+                <h1>instaram</h1>
+            </li>
+        </ul>
+    </div>
+    <h1 class="w-full text-center text-sm py-2">Travel World | &copy; Travel World 2022</h1>
+</footer>
+
+<script src="./main.js"></script>
+</html>
